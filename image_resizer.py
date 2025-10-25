@@ -499,10 +499,18 @@ class ImageResizerApp(QMainWindow):
                 else:
                     self.copyright_warning_label.setText("")
                 
-                # Extract and display metadata
-                metadata_text = self.extract_image_metadata()
-                self.metadata_label.setText(metadata_text)
-                self.metadata_label.setStyleSheet("color: black; font-family: 'Courier New', monospace; font-size: 11px;")
+                # Extract and display metadata (with error handling to prevent preview breakage)
+                try:
+                    metadata_text = self.extract_image_metadata()
+                    # Truncate if too long to prevent UI issues
+                    if len(metadata_text) > 500:
+                        metadata_text = metadata_text[:500] + "..."
+                    self.metadata_label.setText(metadata_text)
+                    self.metadata_label.setStyleSheet("color: black; font-family: 'Courier New', monospace; font-size: 11px;")
+                except Exception as e:
+                    # If metadata extraction fails, don't crash the preview
+                    self.metadata_label.setText(f"Metadata available but could not be displayed: {str(e)[:50]}")
+                    self.metadata_label.setStyleSheet("color: orange; font-family: 'Courier New', monospace; font-size: 11px;")
                 
                 # Enable buttons
                 self.preview_btn.setEnabled(True)
@@ -565,38 +573,68 @@ class ImageResizerApp(QMainWindow):
                 metadata_lines.append(f"File Size: {file_size:,} bytes ({file_size/1024:.1f} KB)")
             
             # EXIF data
-            exif_data = self.original_image.getexif()
-            if exif_data:
-                metadata_lines.append("\nEXIF Data:")
-                
-                # Common EXIF tags
-                exif_tags = {
-                    271: "Make",
-                    272: "Model", 
-                    274: "Orientation",
-                    282: "X Resolution",
-                    283: "Y Resolution",
-                    306: "DateTime",
-                    315: "Artist",
-                    33432: "Copyright",
-                    36867: "DateTime Original",
-                    36868: "DateTime Digitized"
-                }
-                
-                for tag_id, tag_name in exif_tags.items():
-                    if tag_id in exif_data:
-                        value = exif_data[tag_id]
-                        if isinstance(value, str) and len(value) > 50:
-                            value = value[:47] + "..."
-                        metadata_lines.append(f"  {tag_name}: {value}")
+            try:
+                exif_data = self.original_image.getexif()
+                if exif_data:
+                    metadata_lines.append("\nEXIF Data:")
+                    
+                    # Common EXIF tags
+                    exif_tags = {
+                        271: "Make",
+                        272: "Model", 
+                        274: "Orientation",
+                        282: "X Resolution",
+                        283: "Y Resolution",
+                        306: "DateTime",
+                        315: "Artist",
+                        33432: "Copyright",
+                        36867: "DateTime Original",
+                        36868: "DateTime Digitized"
+                    }
+                    
+                    for tag_id, tag_name in exif_tags.items():
+                        try:
+                            if tag_id in exif_data:
+                                value = exif_data[tag_id]
+                                # Safely convert to string and truncate if needed
+                                if not isinstance(value, str):
+                                    value = str(value)
+                                if len(value) > 50:
+                                    value = value[:47] + "..."
+                                metadata_lines.append(f"  {tag_name}: {value}")
+                        except Exception:
+                            # Skip this tag if it can't be read
+                            continue
+            except Exception:
+                # If EXIF reading fails completely, skip it
+                pass
             
             # Image info dict
-            if hasattr(self.original_image, 'info') and self.original_image.info:
-                metadata_lines.append("\nImage Info:")
-                for key, value in self.original_image.info.items():
-                    if isinstance(value, str) and len(value) > 50:
-                        value = value[:47] + "..."
-                    metadata_lines.append(f"  {key}: {value}")
+            try:
+                if hasattr(self.original_image, 'info') and self.original_image.info:
+                    metadata_lines.append("\nImage Info:")
+                    count = 0
+                    for key, value in self.original_image.info.items():
+                        try:
+                            # Limit the number of info items to prevent UI overflow
+                            if count >= 10:
+                                metadata_lines.append("  ... (more items not shown)")
+                                break
+                            # Safely convert to string and truncate
+                            if not isinstance(value, str):
+                                value = str(value)
+                            if len(value) > 50:
+                                value = value[:47] + "..."
+                            # Limit key length too
+                            key_display = key[:30] + "..." if len(str(key)) > 30 else str(key)
+                            metadata_lines.append(f"  {key_display}: {value}")
+                            count += 1
+                        except Exception:
+                            # Skip this item if it can't be formatted
+                            continue
+            except Exception:
+                # If image info reading fails, skip it
+                pass
             
             return "\n".join(metadata_lines) if metadata_lines else "No metadata available"
             
