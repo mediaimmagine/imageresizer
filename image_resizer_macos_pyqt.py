@@ -6,29 +6,6 @@ Forked from the Windows Tkinter version for better macOS compatibility
 
 import sys
 import os
-import urllib.request
-
-def get_resource_path(filename: str) -> str:
-    """Return an absolute path to a bundled resource.
-
-    Tries multiple locations to work both in development and in a PyInstaller .app bundle.
-    """
-    candidates = []
-    # 1) Next to this file (dev mode)
-    candidates.append(os.path.join(os.path.dirname(__file__), filename))
-    # 2) PyInstaller _MEIPASS temp dir
-    meipass = getattr(sys, "_MEIPASS", None)
-    if meipass:
-        candidates.append(os.path.join(meipass, filename))
-    # 3) Next to executable (inside .app/Contents/MacOS)
-    candidates.append(os.path.join(os.path.dirname(sys.executable), filename))
-    # 4) macOS Resources folder (when running inside .app)
-    candidates.append(os.path.join(os.path.dirname(sys.executable), "..", "Resources", filename))
-    for p in candidates:
-        if os.path.exists(p):
-            return os.path.abspath(p)
-    # Fallback: return first candidate (dev)
-    return os.path.abspath(candidates[0])
 from pathlib import Path
 from PIL import Image, ImageDraw
 import io
@@ -195,67 +172,12 @@ class ImageResizerApp(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
-        # Main layout (vertical: header, content, footer)
-        main_layout = QVBoxLayout(central_widget)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.setSpacing(0)
+        # Main layout
+        main_layout = QHBoxLayout(central_widget)
         
-        # Header bar with optional logo and title
-        header = QWidget()
-        header.setStyleSheet("background-color: #2c3e50;")
-        header_layout = QHBoxLayout(header)
-        header_layout.setContentsMargins(12, 10, 12, 10)
-        header_layout.setSpacing(10)
-        
-        # Try to load embedded graphic-only logo if present
-        self._has_logo = False
-        logo_uri = None
-        try:
-            # Prefer white graphic-only logo; fallback to previous names
-            local_logo_path = get_resource_path("mediaimmagine_logo_white.png")
-            if os.path.exists(local_logo_path):
-                pm = QPixmap(local_logo_path)
-                if not pm.isNull():
-                    self._has_logo = True
-                    logo_uri = 'file://' + os.path.abspath(local_logo_path)
-            else:
-                fallback_logo = get_resource_path("mediaimmagine_logo.png")
-                if os.path.exists(fallback_logo):
-                    pm = QPixmap(fallback_logo)
-                    if not pm.isNull():
-                        self._has_logo = True
-                        logo_uri = 'file://' + os.path.abspath(fallback_logo)
-        except Exception:
-            self._has_logo = False
-        
-        # Safer header composition without rich-text images (prevents crashes on some systems)
-        if self._has_logo and logo_uri:
-            logo_label = QLabel()
-            try:
-                pm = QPixmap(os.path.abspath(local_logo_path))
-                if not pm.isNull():
-                    pm = pm.scaledToHeight(20, Qt.SmoothTransformation)
-                    logo_label.setPixmap(pm)
-                    logo_label.setContentsMargins(0, 0, 15, 0)
-                    header_layout.addWidget(logo_label)
-            except Exception:
-                pass
-        title_label = QLabel("Image Resizer & Web Optimizer")
-        title_label.setStyleSheet("color: white; font-size: 18px; font-weight: bold;")
-        header_layout.addWidget(title_label)
-        header_layout.addStretch()
-        main_layout.addWidget(header)
-        
-        # Create splitter for left and right panels (content area)
+        # Create splitter for left and right panels
         splitter = QSplitter(Qt.Horizontal)
-        
-        # Wrap splitter in a frame to add small margins around content
-        content_frame = QWidget()
-        content_layout = QHBoxLayout(content_frame)
-        content_layout.setContentsMargins(10, 10, 10, 10)
-        content_layout.setSpacing(10)
-        content_layout.addWidget(splitter)
-        main_layout.addWidget(content_frame)
+        main_layout.addWidget(splitter)
         
         # Left panel (controls)
         left_panel = self.create_left_panel()
@@ -267,24 +189,6 @@ class ImageResizerApp(QMainWindow):
         
         # Set splitter proportions
         splitter.setSizes([400, 800])
-        
-        # Footer credits (match Windows version style)
-        footer = QWidget()
-        footer_layout = QHBoxLayout(footer)
-        footer_layout.setContentsMargins(12, 6, 12, 6)
-        footer_layout.setSpacing(8)
-        footer.setStyleSheet("background-color: #ecf0f1;")
-        
-        credits_text = (
-            "mediaimmagine s.r.l. · COED Digital Editor · CUP D97H24001840007\n"
-            "PR FESR 2021-27 · contributo di Regione Friuli Venezia Giulia\n"
-            "sviluppato con l'ausilio di IA"
-        )
-        self.credits_label = QLabel(credits_text)
-        self.credits_label.setStyleSheet("color: #2c3e50; font-size: 10px;")
-        self.credits_label.setWordWrap(True)
-        footer_layout.addWidget(self.credits_label, 1)
-        main_layout.addWidget(footer)
         
         # Status bar
         self.statusBar().showMessage("Ready")
@@ -329,16 +233,16 @@ class ImageResizerApp(QMainWindow):
         settings_layout.addLayout(dim_layout)
         
         # Options
-        self.aspect_check = QCheckBox("Keep aspect ratio (maintain proportions)")
+        self.aspect_check = QCheckBox("🔒 Keep aspect ratio (maintain proportions)")
         self.aspect_check.setChecked(True)
         self.aspect_check.toggled.connect(self.toggle_aspect_ratio)
         settings_layout.addWidget(self.aspect_check)
         
-        self.crop_check = QCheckBox("Crop to fit (when aspect ratio differs)")
+        self.crop_check = QCheckBox("✂️ Crop to fit (when aspect ratio differs)")
         self.crop_check.toggled.connect(self.toggle_crop_mode)
         settings_layout.addWidget(self.crop_check)
         
-        self.manual_crop_check = QCheckBox("Manual crop positioning (drag to adjust)")
+        self.manual_crop_check = QCheckBox("🎯 Manual crop positioning (drag to adjust)")
         self.manual_crop_check.setEnabled(False)
         self.manual_crop_check.toggled.connect(self.toggle_manual_crop)
         settings_layout.addWidget(self.manual_crop_check)
@@ -457,12 +361,6 @@ class ImageResizerApp(QMainWindow):
         self.copyright_warning_label.setStyleSheet("color: red; font-weight: bold;")
         self.copyright_warning_label.setWordWrap(True)
         info_layout.addWidget(self.copyright_warning_label)
-
-        # Large-size warning (estimated output too big)
-        self.size_warning_label = QLabel("")
-        self.size_warning_label.setStyleSheet("color: red; font-weight: bold;")
-        self.size_warning_label.setWordWrap(True)
-        info_layout.addWidget(self.size_warning_label)
         
         layout.addWidget(info_group)
         
@@ -492,16 +390,15 @@ class ImageResizerApp(QMainWindow):
         panel.setStyleSheet("background-color: #f0f0f0; border: 2px solid #cccccc;")
         layout = QVBoxLayout(panel)
         
-        # Preview title (simplified, no icon to save space)
-        title = QLabel("Preview")
+        # Preview title
+        title = QLabel("📸 Preview")
         title.setStyleSheet("font-size: 16px; font-weight: bold; color: black;")
         title.setAlignment(Qt.AlignCenter)
         layout.addWidget(title)
         
         # Preview info
         self.preview_info_label = QLabel("No preview yet - Upload an image and click 'Update Preview'")
-        self.preview_info_label.setTextFormat(Qt.RichText)
-        self.preview_info_label.setStyleSheet("color: black; font-weight: bold;")
+        self.preview_info_label.setStyleSheet("color: gray; font-weight: bold;")
         self.preview_info_label.setAlignment(Qt.AlignCenter)
         self.preview_info_label.setWordWrap(True)
         layout.addWidget(self.preview_info_label)
@@ -550,32 +447,15 @@ class ImageResizerApp(QMainWindow):
         scroll_area.setWidget(self.preview_widget)
         layout.addWidget(scroll_area)
         
-        # Metadata area below preview (summary left, editable boxes right)
+        # Metadata area below preview
         metadata_group = QGroupBox("📊 Image Metadata & EXIF Data")
-        metadata_layout = QHBoxLayout(metadata_group)
-        metadata_layout.setContentsMargins(6, 6, 6, 6)
-        metadata_layout.setSpacing(10)
+        metadata_layout = QVBoxLayout(metadata_group)
         
-        # Left: compact read-only summary
         self.metadata_label = QLabel("No metadata available")
-        self.metadata_label.setStyleSheet("color: gray; font-family: 'Courier New', monospace; font-size: 12px;")
+        self.metadata_label.setStyleSheet("color: gray; font-family: 'Courier New', monospace; font-size: 11px;")
         self.metadata_label.setWordWrap(True)
-        self.metadata_label.setMaximumWidth(340)
-        self.metadata_label.setMaximumHeight(90)
-        metadata_layout.addWidget(self.metadata_label, 0, Qt.AlignLeft)
-
-        # Right: editable metadata fields stacked in a form
-        from PyQt5.QtWidgets import QFormLayout
-        form_container = QWidget()
-        form_container_layout = QFormLayout(form_container)
-        self.meta_title_input = QLineEdit()
-        self.meta_author_input = QLineEdit()
-        self.meta_description_input = QLineEdit()
-        form_container_layout.addRow("Title:", self.meta_title_input)
-        form_container_layout.addRow("Author:", self.meta_author_input)
-        form_container_layout.addRow("Description:", self.meta_description_input)
-        form_container.setContentsMargins(0, 0, 0, 0)
-        metadata_layout.addWidget(form_container, 1, Qt.AlignLeft)
+        self.metadata_label.setMaximumHeight(120)  # Limit height to save space
+        metadata_layout.addWidget(self.metadata_label)
         
         layout.addWidget(metadata_group)
         
@@ -611,32 +491,18 @@ class ImageResizerApp(QMainWindow):
                 self.info_label.setText(info_text)
                 self.info_label.setStyleSheet("color: black;")
                 
-                # Check for copyright/author metadata
+                # Check for copyright metadata
                 copyright_info = self.extract_copyright_metadata()
-                author_text, title_text, desc_text = self.extract_author_title_description()
-                if author_text:
-                    self.copyright_warning_label.setText("WARNING: Image may be copyrighted (Author detected)")
-                elif copyright_info:
-                    self.copyright_warning_label.setText(f"WARNING: COPYRIGHT PROTECTED IMAGE\n{copyright_info}")
+                if copyright_info:
+                    warning_text = f"WARNING: COPYRIGHT PROTECTED IMAGE\n{copyright_info}"
+                    self.copyright_warning_label.setText(warning_text)
                 else:
                     self.copyright_warning_label.setText("")
                 
-                # Extract and display metadata (with error handling to prevent preview breakage)
-                try:
-                    metadata_text = self.extract_image_metadata()
-                    # Truncate if too long to prevent UI issues
-                    if len(metadata_text) > 500:
-                        metadata_text = metadata_text[:500] + "..."
-                    self.metadata_label.setText(metadata_text)
-                    self.metadata_label.setStyleSheet("color: black; font-family: 'Courier New', monospace; font-size: 11px;")
-                    # Prefill editable metadata fields
-                    self.meta_title_input.setText(title_text or "")
-                    self.meta_author_input.setText(author_text or "")
-                    self.meta_description_input.setText(desc_text or "")
-                except Exception as e:
-                    # If metadata extraction fails, don't crash the preview
-                    self.metadata_label.setText(f"Metadata available but could not be displayed: {str(e)[:50]}")
-                    self.metadata_label.setStyleSheet("color: orange; font-family: 'Courier New', monospace; font-size: 11px;")
+                # Extract and display metadata
+                metadata_text = self.extract_image_metadata()
+                self.metadata_label.setText(metadata_text)
+                self.metadata_label.setStyleSheet("color: black; font-family: 'Courier New', monospace; font-size: 11px;")
                 
                 # Enable buttons
                 self.preview_btn.setEnabled(True)
@@ -699,124 +565,43 @@ class ImageResizerApp(QMainWindow):
                 metadata_lines.append(f"File Size: {file_size:,} bytes ({file_size/1024:.1f} KB)")
             
             # EXIF data
-            try:
-                exif_data = self.original_image.getexif()
-                if exif_data:
-                    metadata_lines.append("\nEXIF Data:")
-                    
-                    # Common EXIF tags
-                    exif_tags = {
-                        271: "Make",
-                        272: "Model", 
-                        274: "Orientation",
-                        282: "X Resolution",
-                        283: "Y Resolution",
-                        306: "DateTime",
-                        315: "Artist",
-                        33432: "Copyright",
-                        36867: "DateTime Original",
-                        36868: "DateTime Digitized"
-                    }
-                    
-                    for tag_id, tag_name in exif_tags.items():
-                        try:
-                            if tag_id in exif_data:
-                                value = exif_data[tag_id]
-                                # Safely convert to string and truncate if needed
-                                if not isinstance(value, str):
-                                    value = str(value)
-                                if len(value) > 50:
-                                    value = value[:47] + "..."
-                                metadata_lines.append(f"  {tag_name}: {value}")
-                        except Exception:
-                            # Skip this tag if it can't be read
-                            continue
-            except Exception:
-                # If EXIF reading fails completely, skip it
-                pass
+            exif_data = self.original_image.getexif()
+            if exif_data:
+                metadata_lines.append("\nEXIF Data:")
+                
+                # Common EXIF tags
+                exif_tags = {
+                    271: "Make",
+                    272: "Model", 
+                    274: "Orientation",
+                    282: "X Resolution",
+                    283: "Y Resolution",
+                    306: "DateTime",
+                    315: "Artist",
+                    33432: "Copyright",
+                    36867: "DateTime Original",
+                    36868: "DateTime Digitized"
+                }
+                
+                for tag_id, tag_name in exif_tags.items():
+                    if tag_id in exif_data:
+                        value = exif_data[tag_id]
+                        if isinstance(value, str) and len(value) > 50:
+                            value = value[:47] + "..."
+                        metadata_lines.append(f"  {tag_name}: {value}")
             
             # Image info dict
-            try:
-                if hasattr(self.original_image, 'info') and self.original_image.info:
-                    metadata_lines.append("\nImage Info:")
-                    count = 0
-                    for key, value in self.original_image.info.items():
-                        try:
-                            # Limit the number of info items to prevent UI overflow
-                            if count >= 10:
-                                metadata_lines.append("  ... (more items not shown)")
-                                break
-                            # Safely convert to string and truncate
-                            if not isinstance(value, str):
-                                value = str(value)
-                            if len(value) > 50:
-                                value = value[:47] + "..."
-                            # Limit key length too
-                            key_display = key[:30] + "..." if len(str(key)) > 30 else str(key)
-                            metadata_lines.append(f"  {key_display}: {value}")
-                            count += 1
-                        except Exception:
-                            # Skip this item if it can't be formatted
-                            continue
-            except Exception:
-                # If image info reading fails, skip it
-                pass
+            if hasattr(self.original_image, 'info') and self.original_image.info:
+                metadata_lines.append("\nImage Info:")
+                for key, value in self.original_image.info.items():
+                    if isinstance(value, str) and len(value) > 50:
+                        value = value[:47] + "..."
+                    metadata_lines.append(f"  {key}: {value}")
             
             return "\n".join(metadata_lines) if metadata_lines else "No metadata available"
             
         except Exception as e:
             return f"Error reading metadata: {str(e)}"
-
-    def extract_author_title_description(self):
-        """Return (author, title, description) from EXIF/info if available."""
-        author = None
-        title = None
-        desc = None
-        try:
-            if not self.original_image:
-                return (None, None, None)
-            exif = self.original_image.getexif()
-            if exif:
-                # 315 Artist, 33432 Copyright, 270 ImageDescription
-                if 315 in exif:
-                    author = str(exif[315]) or author
-                if 270 in exif:
-                    title = str(exif[270]) or title
-                # Some cameras store XP fields as bytes (UTF-16LE)
-                xp_title_tag = 0x9C9B
-                xp_comment_tag = 0x9C9C
-                xp_author_tag = 0x9C9D
-                def _decode_xp(v):
-                    try:
-                        if isinstance(v, bytes):
-                            return v.decode('utf-16le').rstrip('\x00')
-                        if isinstance(v, tuple):
-                            return bytes(v).decode('utf-16le').rstrip('\x00')
-                        return str(v)
-                    except Exception:
-                        return None
-                if xp_author_tag in exif and not author:
-                    author = _decode_xp(exif[xp_author_tag]) or author
-                if xp_title_tag in exif and not title:
-                    title = _decode_xp(exif[xp_title_tag]) or title
-                if xp_comment_tag in exif:
-                    desc = _decode_xp(exif[xp_comment_tag]) or desc
-            # PIL info dict fallbacks
-            if hasattr(self.original_image, 'info') and self.original_image.info:
-                info = self.original_image.info
-                for k in ['Artist', 'author', 'Creator', 'Owner']:
-                    if k in info and not author:
-                        author = str(info[k])
-                        break
-                for k in ['Title', 'ImageDescription', 'Description']:
-                    if k in info and not title:
-                        title = str(info[k])
-                        break
-                if 'Comment' in info and not desc:
-                    desc = str(info['Comment'])
-        except Exception:
-            pass
-        return (author, title, desc)
     
     def on_width_change(self):
         """Handle width change when aspect ratio is locked"""
@@ -1327,76 +1112,46 @@ class ImageResizerApp(QMainWindow):
             else:
                 self.resized_image = self.original_image.resize((new_width, new_height), Image.Resampling.LANCZOS)
             
-            # Calculate estimated file size using in-memory encode (more realistic)
-            import io
+            # Calculate estimated file size based on selected format
+            # Use quick heuristic estimation instead of actual compression for speed
             width, height = self.resized_image.size
+            pixels = width * height
+            
             if self.jpg_radio.isChecked():
+                format_name = 'JPEG'
                 format_ext = 'JPG'
-                temp = io.BytesIO()
-                img = self.resized_image
-                if img.mode == 'RGBA':
-                    bg = Image.new('RGB', img.size, (255, 255, 255))
-                    bg.paste(img, mask=img.split()[3])
-                    img = bg
-                img.save(temp, format='JPEG', quality=self.quality_slider.value(), optimize=True)
-                estimated_size_kb = len(temp.getvalue()) / 1024
-                temp.close()
+                # JPEG heuristic: ~0.5-2 bytes per pixel depending on quality
+                quality_factor = self.quality_slider.value() / 100.0
+                bytes_per_pixel = 0.5 + (1.5 * quality_factor)
+                estimated_size_kb = (pixels * bytes_per_pixel) / 1024
             elif self.png_radio.isChecked():
+                format_name = 'PNG'
                 format_ext = 'PNG'
-                temp = io.BytesIO()
-                q = self.quality_slider.value()
-                if q >= 80:
-                    compress_level = 3
-                elif q >= 50:
-                    compress_level = 6
-                else:
-                    compress_level = 9
-                self.resized_image.save(temp, format='PNG', optimize=True, compress_level=compress_level)
-                estimated_size_kb = len(temp.getvalue()) / 1024
-                temp.close()
-            else:
+                # PNG heuristic: ~3-4 bytes per pixel (lossless)
+                channels = 4 if self.resized_image.mode == 'RGBA' else 3
+                bytes_per_pixel = 3.5 + (channels * 0.1)
+                estimated_size_kb = (pixels * bytes_per_pixel) / 1024
+            else:  # WebP
+                format_name = 'WebP'
                 format_ext = 'WebP'
-                temp = io.BytesIO()
-                self.resized_image.save(temp, format='WEBP', quality=self.quality_slider.value(), method=6)
-                estimated_size_kb = len(temp.getvalue()) / 1024
-                temp.close()
+                # WebP heuristic: ~0.3-1.5 bytes per pixel depending on quality
+                quality_factor = self.quality_slider.value() / 100.0
+                bytes_per_pixel = 0.3 + (1.2 * quality_factor)
+                estimated_size_kb = (pixels * bytes_per_pixel) / 1024
             
             crop_text = ""
             if self.crop_mode and self.needs_crop and self.crop_box:
                 left, top, right, bottom = self.crop_box
                 crop_text = f"\n✂️ Cropped from: {right-left} x {bottom-top} px"
             
-            # Two-tier size warnings (orange >100 KB, red >130 KB)
-            orange_kb = 100.0
-            red_kb = 130.0
-            est_color = "black"
-            if estimated_size_kb > red_kb:
-                self.size_warning_label.setStyleSheet("color: red; font-weight: bold;")
-                self.size_warning_label.setText(
-                    f"WARNING: Estimated output is very large (≈ {estimated_size_kb:.0f} KB). "
-                    f"Reduce dimensions or quality."
-                )
-                est_color = "red"
-            elif estimated_size_kb > orange_kb:
-                self.size_warning_label.setStyleSheet("color: orange; font-weight: bold;")
-                self.size_warning_label.setText(
-                    f"Notice: Estimated output is large (≈ {estimated_size_kb:.0f} KB). "
-                    f"Consider lowering dimensions or quality."
-                )
-                est_color = "orange"
-            else:
-                self.size_warning_label.setText("")
-                est_color = "black"
-
-            # Compose rich-text so only Estimated Size is colored; others remain black
-            info_parts = [
-                f"📐 Dimensions: {new_width} x {new_height} px",
-                f"<span style='color:{est_color}; font-weight:bold'>📊 Estimated Size ({format_ext}): {estimated_size_kb:.1f} KB</span>",
-                f"🎚️ Quality: {self.quality_slider.value()}%",
-                crop_text.replace('\n', '<br>') if crop_text else "",
-            ]
-            info_html = "<br>".join([p for p in info_parts if p])
-            self.preview_info_label.setText(info_html)
+            info_text = (
+                f"📐 Dimensions: {new_width} x {new_height} px\n"
+                f"📊 Estimated Size ({format_ext}): {estimated_size_kb:.1f} KB\n"
+                f"🎚️ Quality: {self.quality_slider.value()}%"
+                f"{crop_text}"
+            )
+            self.preview_info_label.setText(info_text)
+            self.preview_info_label.setStyleSheet("color: black; font-weight: bold;")
             
             # Display preview - show both crop area and final result like Windows version
             max_preview_size = (450, 300)
