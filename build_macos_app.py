@@ -80,6 +80,48 @@ def create_app_bundle():
         print(f"✗ Failed to create app bundle: {e}")
         return False
 
+
+def create_wp_app_bundle():
+    """Create the macOS app bundle for the WordPress test variant"""
+    print("Creating macOS app bundle (WordPress variant)...")
+    import platform
+    arch = platform.machine().lower()
+    target_arch = None
+    if arch in ("arm64", "aarch64"):
+        target_arch = "arm64"
+    elif arch in ("x86_64", "amd64"):
+        target_arch = "x86_64"
+
+    cmd = [
+        "pyinstaller",
+        "--clean",
+        "--noconfirm",
+        "--windowed",
+        "--name=ImageResizerWP",
+        "--icon=app_icon.icns",
+        "--add-data=requirements_image_resizer.txt:.",
+        "--add-data=mediaimmagine_logo_white.png:.",
+        "--hidden-import=PIL",
+        "--hidden-import=PIL.Image",
+        "--hidden-import=PIL.ImageDraw",
+        "--hidden-import=PyQt5.sip",
+        "--collect-submodules=PyQt5.QtCore",
+        "--collect-submodules=PyQt5.QtGui",
+        "--collect-submodules=PyQt5.QtWidgets",
+        "--osx-bundle-identifier=com.imageresizer.wp",
+    ]
+    if target_arch:
+        cmd.append(f"--target-arch={target_arch}")
+    cmd.append("image_resizer_macos_wp.py")
+
+    try:
+        subprocess.check_call(cmd)
+        print("✓ WP App bundle created successfully")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Failed to create WP app bundle: {e}")
+        return False
+
 def create_app_icon():
     """Create a simple app icon if one doesn't exist"""
     icon_path = Path("app_icon.icns")
@@ -252,7 +294,62 @@ def main():
     
     return True
 
+
+def main_wp():
+    """Build process for the WordPress variant"""
+    print("====================================")
+    print("   Building macOS Image Resizer WP App")
+    print("====================================")
+    print()
+
+    if sys.version_info < (3, 8):
+        print("✗ Python 3.8+ is required")
+        return False
+    print(f"✓ Python {sys.version_info.major}.{sys.version_info.minor} detected")
+    if sys.platform != "darwin":
+        print("✗ This script should be run on macOS")
+        return False
+    print("✓ Running on macOS")
+    if not check_pyinstaller():
+        return False
+    if not create_app_icon():
+        print("Warning: Continuing without custom icon")
+    if not create_wp_app_bundle():
+        return False
+    if os.path.exists("dist/ImageResizerWP.app"):
+        # Write a minimal plist tailored to WP app
+        plist_path = "dist/ImageResizerWP.app/Contents/Info.plist"
+        plist = """<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>Image Resizer WP</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.imageresizer.wp</string>
+    <key>CFBundleName</key>
+    <string>ImageResizerWP</string>
+    <key>CFBundleVersion</key>
+    <string>1.0.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+</dict>
+</plist>
+"""
+        with open(plist_path, "w") as f:
+            f.write(plist)
+    print("\nWP Build complete (dist/ImageResizerWP.app)")
+    return True
+
 if __name__ == "__main__":
-    success = main()
+    # Support optional arg: --wp to build the WP variant
+    if len(sys.argv) > 1 and sys.argv[1] == "--wp":
+        success = main_wp()
+    else:
+        success = main()
     sys.exit(0 if success else 1)
 
