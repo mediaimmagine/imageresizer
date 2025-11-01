@@ -240,7 +240,7 @@ class ImageResizerApp(QMainWindow):
                     header_layout.addWidget(logo_label)
             except Exception:
                 pass
-        title_label = QLabel("Image Resizer & Web Optimizer")
+        title_label = QLabel("Image Resizer & Web Optimizer - WordPress version")
         title_label.setStyleSheet("color: white; font-size: 18px; font-weight: bold;")
         header_layout.addWidget(title_label)
         header_layout.addStretch()
@@ -391,7 +391,7 @@ class ImageResizerApp(QMainWindow):
         quality_layout.addLayout(slider_layout)
         layout.addWidget(quality_group)
         
-        # Output format section
+        # Output format section - horizontal layout for radio buttons
         format_group = QGroupBox("💾 Output Format")
         format_layout = QVBoxLayout(format_group)
         
@@ -410,21 +410,26 @@ class ImageResizerApp(QMainWindow):
         self.png_radio.toggled.connect(self.on_format_change)
         self.webp_radio.toggled.connect(self.on_format_change)
         
-        format_layout.addWidget(self.jpg_radio)
-        format_layout.addWidget(self.png_radio)
-        format_layout.addWidget(self.webp_radio)
+        # Horizontal layout for radio buttons
+        radio_layout = QHBoxLayout()
+        radio_layout.addWidget(self.jpg_radio)
+        radio_layout.addWidget(self.png_radio)
+        radio_layout.addWidget(self.webp_radio)
+        radio_layout.addStretch()  # Push buttons to the left
+        format_layout.addLayout(radio_layout)
         
-        # Format info
+        # Format info - compact
         format_info = QLabel("JPG: Lossy, best for photos | PNG: Lossless, supports transparency | WebP: Modern, smaller files")
-        format_info.setStyleSheet("color: gray; font-style: italic;")
+        format_info.setStyleSheet("color: gray; font-style: italic; font-size: 9px;")
         format_info.setWordWrap(True)
         format_layout.addWidget(format_info)
         
         layout.addWidget(format_group)
         
-        # Web presets section
+        # Web presets section - 2 rows x 3 columns, smaller buttons
         presets_group = QGroupBox("🌐 Web Presets")
         presets_layout = QGridLayout(presets_group)
+        presets_layout.setSpacing(3)  # Reduce spacing
         
         presets = [
             ("2K (2048x1366)", 2048, 1366),
@@ -437,24 +442,25 @@ class ImageResizerApp(QMainWindow):
         
         for i, (name, w, h) in enumerate(presets):
             btn = QPushButton(name)
-            btn.setStyleSheet("background-color: #95a5a6; color: white;")
+            btn.setStyleSheet("background-color: #95a5a6; color: white; font-size: 10px; padding: 5px;")
             btn.clicked.connect(lambda checked, w=w, h=h: self.apply_preset(w, h))
-            presets_layout.addWidget(btn, i//2, i%2)
+            presets_layout.addWidget(btn, i//3, i%3)  # 2 rows x 3 columns
         
         layout.addWidget(presets_group)
         
-        # Info section
+        # Info section - compact
         info_group = QGroupBox("ℹ️ Original Image Info")
         info_layout = QVBoxLayout(info_group)
+        info_layout.setSpacing(3)  # Reduce spacing between elements
         
         self.info_label = QLabel("Upload an image to see details")
-        self.info_label.setStyleSheet("color: gray;")
+        self.info_label.setStyleSheet("color: gray; font-size: 10px;")
         self.info_label.setWordWrap(True)
         info_layout.addWidget(self.info_label)
         
-        # Copyright warning
+        # Copyright warning - compact
         self.copyright_warning_label = QLabel("")
-        self.copyright_warning_label.setStyleSheet("color: red; font-weight: bold;")
+        self.copyright_warning_label.setStyleSheet("color: red; font-weight: bold; font-size: 9px;")
         self.copyright_warning_label.setWordWrap(True)
         info_layout.addWidget(self.copyright_warning_label)
 
@@ -466,18 +472,21 @@ class ImageResizerApp(QMainWindow):
         
         layout.addWidget(info_group)
         
-        # Action buttons
-        button_layout = QVBoxLayout()
+        # Action buttons - horizontal layout, smaller buttons
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(5)  # Small spacing between buttons
         
         self.preview_btn = QPushButton("🔄 Update Preview")
         self.preview_btn.setObjectName("previewBtn")
         self.preview_btn.setEnabled(False)
+        self.preview_btn.setStyleSheet("font-size: 11px; padding: 6px;")
         self.preview_btn.clicked.connect(self.update_preview)
         button_layout.addWidget(self.preview_btn)
         
         self.save_btn = QPushButton("💾 Save Resized Image")
         self.save_btn.setObjectName("saveBtn")
         self.save_btn.setEnabled(False)
+        self.save_btn.setStyleSheet("font-size: 11px; padding: 6px;")
         self.save_btn.clicked.connect(self.save_image)
         button_layout.addWidget(self.save_btn)
         
@@ -607,9 +616,9 @@ class ImageResizerApp(QMainWindow):
                 
                 # Update info
                 file_size = os.path.getsize(file_path) / 1024
-                info_text = f"Original: {width}x{height} px | Size: {file_size:.1f} KB | Format: {self.original_image.format}"
+                info_text = f"{width}x{height}px | {file_size:.1f}KB | {self.original_image.format}"
                 self.info_label.setText(info_text)
-                self.info_label.setStyleSheet("color: black;")
+                self.info_label.setStyleSheet("color: black; font-size: 10px;")
                 
                 # Check for copyright/author metadata
                 copyright_info = self.extract_copyright_metadata()

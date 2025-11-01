@@ -32,3 +32,5 @@ echo "Hold Option key and click the WiFi icon, then choose 'Open Wireless Diagno
 
 
 
+
+

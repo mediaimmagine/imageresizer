@@ -93,7 +93,7 @@ def create_wp_app_bundle():
         target_arch = "x86_64"
 
     cmd = [
-        "pyinstaller",
+        sys.executable, "-m", "PyInstaller",
         "--clean",
         "--noconfirm",
         "--windowed",
