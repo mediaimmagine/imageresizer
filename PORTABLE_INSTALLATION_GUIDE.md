@@ -240,3 +240,5 @@ This portable version maintains the same license as the original Image Resizer. 
 
 
 
+
+

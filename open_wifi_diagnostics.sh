@@ -16,3 +16,5 @@ open /System/Library/CoreServices/Applications/Wireless\ Diagnostics.app
 
 
 
+
+

@@ -64,3 +64,5 @@ echo "Image Resizer closed."
 
 
 
+
+

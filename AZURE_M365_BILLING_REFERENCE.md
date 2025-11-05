@@ -127,3 +127,5 @@ Ruoli necessari nel **Portale Azure**:
 *Aggiornato per distinguere tra Microsoft 365 e Azure AD pay-as-you-go billing*
 
 
+
+
