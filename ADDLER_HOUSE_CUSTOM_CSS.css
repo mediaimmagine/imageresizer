@@ -1,0 +1,65 @@
+/* ============================================================
+   Addler House – Custom CSS (WordPress Appearance → Customize → Additional CSS)
+   ============================================================ */
+
+/* --- Polylang language selector --- */
+select#lang_choice_polylang-2 {
+	background-color: #3a2620;
+}
+
+/* --- Sidebar booking module (footer) --- */
+.sidebar-booking-module-footer .social-icons {
+	background-color: rgba(148, 156, 165, 0.12);
+	text-align: center;
+	padding: 12px 0;
+	display: none;
+}
+
+/* --- Ciaobooking: book button & section --- */
+.kw_book_button.kw_book_button--no_best_price .kw_block {
+	align-self: center;
+	background-color: #b49270;
+}
+.kw_section.kw_section--margin_top_remove_items .kw_section__item {
+	margin-top: 0;
+	background-color: #b49270;
+}
+
+/* ============================================================
+   Header: transparent menu on blog/archive (Homey theme)
+   ============================================================ */
+body.blog .transparent-header .header-nav,
+body.archive .transparent-header .header-nav,
+body.single .transparent-header .header-nav,
+.transparent-header .nav-area {
+	background-color: #ffffff !important;
+}
+.transparent-header .header-nav {
+	background-color: #ffffff !important;
+}
+.transparent-header .header-nav .navi a,
+.transparent-header .header-nav nav a {
+	color: #4f5962 !important;
+}
+.transparent-header .header-nav .navi a:hover,
+.transparent-header .header-nav nav a:hover {
+	color: #3a2620 !important;
+}
+.transparent-header .header-nav a img {
+	opacity: 1;
+	filter: none;
+}
+
+/* ============================================================
+   Footer: only Ciaobooking widgets (Veneto / Sicilia)
+   Scoped so Contact Us & Newsletter keep theme (light) text.
+   ============================================================ */
+footer .widget_native_ciaobooking_widget,
+[role="contentinfo"] .widget_native_ciaobooking_widget {
+	color: #3a2620 !important;
+}
+footer .widget_native_ciaobooking_widget .cb-input-wrapper input[type="number"],
+[role="contentinfo"] .widget_native_ciaobooking_widget .cb-input-wrapper input[type="number"] {
+	color: #3a2620 !important;
+	background-color: #ffffff !important;
+}
