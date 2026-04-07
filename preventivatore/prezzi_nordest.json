@@ -1,0 +1,135 @@
+{
+  "_comment": "Listino allineato a mercato Nordest / area di Trieste (FVG), Q1 2026. Riferimenti: listini pubblici hosting IT (es. Keliweb WP Gestito ~70–150 €/anno costo piano; rivendita gestita cliente spesso 200–380 €/anno), Serverplan WP enterprise ~140–230 €/anno, WPML CMS ufficiale 99 €/anno, fasce preventivo sito WP professionale Italia 700–2500+ € vetrina, manutenzione WP su pacchetti 190–600+ €/anno. Trieste: fascia medio-alta vs media nazionale; rivedi trimestralmente.",
+  "currency": "EUR",
+  "iva_percent": 22,
+  "bases": {
+    "economico": {
+      "label": "Sito economico (professionista / privato)",
+      "description": "WP + Elementor, pacchetto contenimento costi: fino a 3 pagine (es. Home, Chi sono/Servizi, Contatti), kit/template premium scelto da catalogo, impaginazione base, modulo contatti, responsive, cookie banner essenziale. Ideale per libero professionista o uso personale; personalizzazioni grafiche limitate, nessuna funzionalità avanzata inclusa (blog, e-commerce, multilingua si aggiungono come opzioni).",
+      "included_pages": 3,
+      "price": 690
+    },
+    "vetrina": {
+      "label": "Sito vetrina / corporate",
+      "description": "WP + Elementor, fino a 5 pagine incluse, template premium o kit, responsive, cookie banner base.",
+      "included_pages": 5,
+      "price": 1580
+    },
+    "blog": {
+      "label": "Sito con blog strutturato",
+      "description": "Come vetrina + archivio categorie/tag, sidebar, impaginazione articoli.",
+      "included_pages": 8,
+      "price": 1990
+    },
+    "ecommerce": {
+      "label": "E-commerce (WooCommerce)",
+      "description": "Catalogo, carrello, pagamenti (plugin), spedizioni base, fino a 30 prodotti inseriti.",
+      "included_pages": 12,
+      "price": 3480
+    },
+    "landing": {
+      "label": "Landing / one-page estesa",
+      "description": "Single page con sezioni multiple, form, CTA, tracking base.",
+      "included_pages": 1,
+      "price": 920
+    }
+  },
+  "extra_page_price": 132,
+  "complexity_multiplier": {
+    "standard": 1.0,
+    "medio": 1.18,
+    "alto": 1.35
+  },
+  "options": {
+    "woocommerce_addon": {
+      "label": "Modulo e-commerce su sito non e-commerce",
+      "price": 2580
+    },
+    "wpml_setup_base": {
+      "label": "Setup WPML (configurazione, String Translation, allineamento menu/URL)",
+      "price": 410
+    },
+    "wpml_per_extra_language": {
+      "label": "Lingua aggiuntiva (WPML: pagine, contenuti, Elementor, slug)",
+      "price": 450
+    },
+    "wpml_license_annual": {
+      "label": "Licenza WPML Multilingual CMS (1 anno, listino ufficiale WPML, a carico cliente)",
+      "price": 99
+    },
+    "seo_onpage": {
+      "label": "SEO on-page (titoli, meta, schema base, sitemap)",
+      "price": 740
+    },
+    "copywriting_per_page": {
+      "label": "Copywriting professionale (per pagina)",
+      "price": 195
+    },
+    "advanced_forms": {
+      "label": "Form multi-step / logica / integrazioni email",
+      "price": 385
+    },
+    "crm_integration": {
+      "label": "Integrazione CRM / newsletter (API o Zapier base)",
+      "price": 560
+    },
+    "elementor_pro_license": {
+      "label": "Licenza Elementor Pro (1 anno, a carico cliente, listino tipico 2026)",
+      "price": 69
+    },
+    "speed_optimization": {
+      "label": "Ottimizzazione prestazioni (cache, immagini, Core Web Vitals)",
+      "price": 520
+    },
+    "legal_pages_setup": {
+      "label": "Privacy policy / cookie policy (testi standard + configurazione)",
+      "price": 310
+    }
+  },
+  "hourly_consulting": 64,
+  "hosting_annual_managed": {
+    "label": "Hosting WordPress gestito (12 mesi, da 220 €/anno + IVA)",
+    "price": 220,
+    "period_months": 12,
+    "_note": "Base listino: 220 €/anno imponibile + IVA; integra in base a piano rivenditore e SLA (Trieste / Nordest)."
+  },
+  "hosting_addons_annual": {
+    "_help": "Aggiunte annuali (12 mesi) solo con hosting incluso. Valori rivendita cliente; costi BitNinja/Imunify lato server spesso in USD — converti e margina.",
+    "disaster_recovery": {
+      "label": "Disaster recovery — backup remoto, retention e test ripristino (12 mesi)",
+      "price": 175
+    },
+    "antivirus_malware": {
+      "label": "Antivirus / antimalware e scansione livello hosting (12 mesi)",
+      "price": 105
+    },
+    "bitninja": {
+      "label": "Protezione BitNinja — WAF, hardening e difesa applicativa (12 mesi)",
+      "price": 95
+    }
+  },
+  "domain_annual": {
+    "label": "Dominio .it o .com (1 anno, registrazione/rinnovo indicativo)",
+    "price": 16
+  },
+  "maintenance_annual_percent_of_net": 0.19,
+  "maintenance_annual_minimum": 720,
+  "ecommerce_extra_product_batch": {
+    "label": "Ogni ulteriore blocco 20 prodotti (inserimento + attributi)",
+    "price": 300,
+    "batch_size": 20
+  },
+  "commercial": {
+    "_help": "Margine = ricarico % sull'imponibile sviluppo (listino tecnico). Sconto = riduzione % sul prezzo dopo margine. Solo voce sviluppo one-off; hosting/dominio/manutenzione restano separati.",
+    "margin_percent_default": 25,
+    "discount_percent_default": 0,
+    "margin_percent_max": 80,
+    "discount_percent_max": 50,
+    "provvigione_by_complexity": {
+      "_help": "Chiavi = stesso valore del campo Complessità (complexity_multiplier). Solo indicatore interno: non entra nel totale cliente.",
+      "standard": { "label": "Standard", "percent": 15 },
+      "medio": { "label": "Medio", "percent": 25 },
+      "alto": { "label": "Alto", "percent": 30 }
+    }
+  }
+}

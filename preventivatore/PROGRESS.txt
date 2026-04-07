@@ -1,0 +1,40 @@
+Preventivatore — stato lavoro (salvato per proseguire)
+===============================================
+
+Obiettivo
+---------
+Portatile con interfaccia semplice per l’utente finale, come su PC (una finestra Tk
+con moduli allineati e riepilogo visibile).
+
+Situazione attuale
+------------------
+- Windows: Tkinter + ttk funziona in modo affidabile (tema «vista»).
+- macOS: molte build Python/Tcl-Tk non disegnano correttamente i widget (finestre vuote,
+  menu larghi, testo invisibile). Abbiamo aggiunto UI alternativa senza dipendenze pip.
+
+Comportamento su macOS (default)
+--------------------------------
+`python3 preventivo_siti.py` avvia un server HTTP solo su 127.0.0.1 e apre il browser:
+form allineato, riepilogo e testo offerta dopo «Calcola». Stessi calcoli del listino JSON.
+
+Finestra Tk su Mac (come PC), se serve
+---------------------------------------
+  PREVENTIVATORE_TK=1 python3 preventivo_siti.py
+
+Oppure installare Python ufficiale da python.org (bundle Tcl/Tk completo) e ritestare Tk.
+
+File
+----
+- preventivo_siti.py   — logica + Tk (Win/Linux/Mac opzionale) + web locale (Mac default)
+- prezzi_nordest.json  — listino
+- README_MAC.txt       — istruzioni Mac
+
+Prossimi passi suggeriti (domani)
+---------------------------------
+1. Validare l’interfaccia web su Safari/Chrome come esperienza «portabile» su Mac.
+2. Se serve davvero una sola finestra nativa su Mac: valutare PyInstaller + Python.org,
+   oppure PyWebView (richiede pip) per incapsulare la stessa UI web.
+3. Creare pacchetto zip «Preventivatore_Portable» con script .command / .bat e README breve.
+4. Allineare README Windows (doppio clic / pythonw) se distribuite su PC.
+
+Data ultimo aggiornamento: 2026-04-07
